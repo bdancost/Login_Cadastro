@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-const port = 3000;
+const port = 5500;
 
 let users = []; // Simples armazenamento em memória para testes
 
@@ -17,9 +17,11 @@ app.post("/login", (req, res) => {
   );
 
   if (user) {
-    res.json({ success: true });
+    res.json({ success: true, message: "Login realizado com sucesso!" });
   } else {
-    res.json({ success: false });
+    res
+      .status(400)
+      .json({ success: false, message: "Email ou senha incorretos." });
   }
 });
 
@@ -29,11 +31,18 @@ app.post("/register", (req, res) => {
   const userExists = users.find((user) => user.email === email);
 
   if (userExists) {
-    res.json({ success: false });
-  } else {
-    users.push({ name, email, password });
-    res.json({ success: true });
+    res.status(400).json({ success: false, message: "Email já cadastrado!" });
   }
+
+  // Verifica se os dados estão completos
+  if (!name || !email || !password) {
+    res
+      .status(400)
+      .json({ success: false, message: "Preencha todos os campos!" });
+  }
+
+  users.push({ name, email, password });
+  res.status(201).json({ success: true, message: "Conta criada com sucesso!" });
 });
 
 // Inicia o servidor
